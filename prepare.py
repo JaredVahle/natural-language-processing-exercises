@@ -35,8 +35,17 @@ def remove_stopwords(article,extra_words = [], exclude_words = []):
     stopword_list = stopwords.words('english')
     stopword_list = set(stopword_list) - set(exclude_words)
     stopword_list = stopword_list.union(set(extra_words))
-    
+
     words = article.split()
     filtered_words = [word for word in words if word not in stopword_list]
     article_without_stopwords = ' '.join(filtered_words)
     return article_without_stopwords
+
+def prep_article_data(df,content,extra_words=[],exclude_words=[]):
+    df['title'] = df.title
+
+    df['original'] = df[content]
+    df['clean'] = df[content].apply(basic_clean).apply(tokenize).apply(lambda x: remove_stopwords(x, extra_words, exclude_words))
+    df['stemmed'] = df['clean'].apply(stem)
+    df['lemmatized'] = df['clean'].apply(lemmatize)
+    return df[['title','original','clean','stemmed','lemmatized']]
